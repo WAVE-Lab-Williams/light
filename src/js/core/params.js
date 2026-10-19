@@ -4,7 +4,7 @@ Defining Parameter Variables
 ===============================================================
 */
 
-var stimFolder = 'src/assets/stimuli/circles/'
+var stimFolder = 'src/assets/stimuli/light/'
 
 var runIntro = true;
 var runInstr = true;
@@ -28,16 +28,18 @@ instead of having to edit the file and do PRs.
 */
 var CONFIG_DEFAULTS = {
     number_of_repetitions: 1,
-    base_circle_colors: ["blue","orange"],
+    dark_locations: [`3`, `5`],
+    display_durations: [400, 600, 800, 1000]
 };
 
 // Defining Core Variables that remain constant
-var PRESTIM_DISP_TIME = 800;
-var FIXATION_DISP_TIME = 500;
+var PRESTIM_DISP_TIME = 800; // blank screen time
+var FIXATION_DISP_TIME = 500; // fixation cross display time
+var MASK_DISP_TIME = 100;
 
 // Variables for Participant Information
-var estTotalRunTime = 5;
-var estDollars = 0.9;
+var estTotalRunTime = 3;
+var estDollars = 0.45;
 var participantType = 'prolific';
 var completionCode = 'C4MF2IV1';
 var prolific_url = 'https://app.prolific.co/submissions/complete?cc='+completionCode;

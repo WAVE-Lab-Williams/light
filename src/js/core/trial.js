@@ -4,7 +4,7 @@ PUSHING/RUNNING A CUSTOM SINGLE TRIAL (*singleTrial)
 ===============================================================
 */
 function runSingleTrial(
-    stimColor,
+    stimDarkLocation,
     stimDuration,
     timelineTrialsToPush,
     trialType,
@@ -45,60 +45,65 @@ function runSingleTrial(
     };
 
     /*--------------------------- Experiment specific variables ---------------------------*/
-    var thisStim = `${stimFolder}${stimColor}-circle.png`
-    var persistent_prompt = `<div style="position: fixed; top: 50px; left: 50%; transform: translateX(-50%); text-align: center;">f = blue; j = orange </div>`;
+    var stimName = String(stimDarkLocation) === '3' ? 'three' : 'five';
+    var thisStim = `${stimFolder}${stimName}OffBase2.png`;
+    var thisMask = `${stimFolder}${stimName}OffBase2_mask.png`;
+    var leftSliderImage = `${stimFolder}dayRoad_short.png`;
+    var rightSliderImage = `${stimFolder}dayRoad_long.png`;
+    var persistent_prompt = `<div style="position: fixed; top: 50px; left: 50%; transform: translateX(-50%); text-align: center;"></div>`;
 
-    /* testing a slider */
-    tarSize = 40;
-    var dispCircleSlider = {
-        type: jsPsychHtmlSliderResponseResizing,
-        stimulus: `<img src="${thisStim}" />`,
-        slider_start: 70,
-        min: 20,
-        max: 120,
-        slider_width: 500,
-        labels: ["smaller","larger"],
-        trial_duration: null,
-        response_ends_trial: true,
-        prompt: `${persistent_prompt}`,
-        data: {
-            trial_category: 'answer'+trialType,
-            trial_stimulus: thisStim,
-            correct_response: tarSize,
-        }, // data end
-        on_finish: function(data){
-            data.thisDifference = data.response - tarSize
-        } // on finish end
-    }; // dispCircle end
-
-    var dispCircle = {
+    var displayRandomizedImage = {
         type: jsPsychHtmlKeyboardResponse,
-        stimulus: `<img src="${thisStim}" style="width: ${imgWidth}px;" />`,
-        choices: ['f', 'j'],
-        stimulus_duration: stimDuration, // only use stimulus_duration when you want the image on screen display to be desynced from the trial_duration, will go hidden after this time.
-        trial_duration: null, // most of the time, you will have trial_duration set to the display time, and no stimulus duration at all.
-        response_ends_trial: true,
-        prompt: `${persistent_prompt}`,
+        stimulus: `
+            <div style="
+                position: fixed;
+                inset: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            ">
+                <img src="${thisStim}" style="
+                    width: 85vw;
+                    max-height: 85vh;
+                    object-fit: contain;
+                " />
+            </div>
+        `,
+        choices: "NO_KEYS",
+        trial_duration: stimDuration,
         data: {
-            trial_category: 'answer'+trialType,
+            trial_category: 'stimulus' + trialType,
             trial_stimulus: thisStim,
-            trial_duration: stimDuration, // you only need to include this line to overlay trial_duration if stimulus_duration is different than trial_duration, and you actually want to record stimulus_duration
-            correct_response: function(){ 
-                if (stimColor === 'blue') {
-                    return 'f';
-                } else if (stimColor === 'orange') {
-                    return 'j';
-                }
-            }, //correct response end
-        }, // data end
-        on_finish: function(data){
-            if (jsPsych.pluginAPI.compareKeys(data.response, data.correct_response)){
-                data.thisAcc = 1;
-            } else {
-                data.thisAcc = 2;
-            }
-        } // on finish end
-    }; // dispCircle end
+            stimulus_condition: stimDarkLocation,
+            stimulus_duration: stimDuration,
+        },
+    };
+
+    var mask = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: `
+            <div style="
+                position: fixed;
+                inset: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            ">
+                <img src="${thisMask}" style="
+                    width: 85vw;
+                    max-height: 85vh;
+                    object-fit: contain;
+                " />
+            </div>
+        `,
+        choices: "NO_KEYS",
+        trial_duration: MASK_DISP_TIME,
+        data: {
+            trial_category: 'mask' + trialType,
+            trial_stimulus: thisMask,
+            mask_duration: MASK_DISP_TIME,
+        },
+    };
 
     var prestim = {
         type: jsPsychHtmlKeyboardResponse,
@@ -108,6 +113,59 @@ function runSingleTrial(
         data: {
             trial_category: 'prestim_ISI' + trialType,
         }
+    };
+
+    var dispSlider = {
+        type: jsPsychSurveyHtmlForm,
+
+        html: `
+            <div style="width: 900px; max-width: 90vw; margin: 0 auto; text-align: center;">
+                <p style="font-size: 24px; margin-bottom: 45px;">
+                    <strong>How far away do you think the construction sign is?</strong>
+                </p>
+
+                <div style="display: grid; grid-template-columns: 300px 1fr 300px; align-items: center; gap: 25px;">
+                    <img src="${leftSliderImage}" style="width: 300px; height: auto;" />
+
+                    <input
+                        type="range"
+                        name="road_length"
+                        min="0"
+                        max="100"
+                        step="1"
+                        value="50"
+                        style="width: 100%;"
+                    />
+
+                    <img src="${rightSliderImage}" style="width: 300px; height: auto;" />
+                </div>
+            </div>
+        `,
+
+        button_label: 'Continue',
+
+        on_load: function () {
+            const slider = document.querySelector('input[name="road_length"]');
+            const button = document.querySelector('#jspsych-survey-html-form-next');
+
+            button.disabled = true;
+
+            slider.addEventListener('input', function () {
+                button.disabled = false;
+            }, { once: true });
+        },
+
+        data: {
+            trial_category: 'answer' + trialType,
+            trial_stimulus: thisStim,
+            stimulus_condition: stimDarkLocation,
+            stimulus_duration: stimDuration,
+            mask_stimulus: thisMask,
+        },
+
+        on_finish: function(data) {
+            data.slider_response = Number(data.response.road_length);
+        },
     };
 
     var fixation = {
@@ -127,8 +185,10 @@ function runSingleTrial(
     timelineTrialsToPush.push(cursor_off);
     timelineTrialsToPush.push(prestim);
     timelineTrialsToPush.push(fixation);
-    timelineTrialsToPush.push(dispCircle);
-    // timelineTrialsToPush.push(dispCircleSlider); // if you wanted to use the slider reproduction measurement tool
+    timelineTrialsToPush.push(displayRandomizedImage);
+    timelineTrialsToPush.push(mask);
     timelineTrialsToPush.push(cursor_on);
+    timelineTrialsToPush.push(dispSlider);
+   
 
 }

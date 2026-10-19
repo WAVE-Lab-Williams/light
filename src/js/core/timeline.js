@@ -164,26 +164,14 @@ INSTR PROCEDURE (*sec_instr)
 
 /* -------  Set Preload Images for Instr + Demo (*preload_instr) -------------- */
 
-forPreload.push(`${stimFolder}demo-circles.png`);
-// make sure to load any images you need for the demo itself. Usually you have different demo images than the main expt, such that you don't give away the content of the expt itself (but still give the participant practice and familiarity with the task. In this case, though, the demo images themselves are identical to the main expt. Variable names are the only difference.
-var demo_circle_colors = ["blue","orange"];
-var demo_display_durations = [200, 500];
-for (var i = 0; i < demo_circle_colors.length; i++) {
-    forPreload.push(`${stimFolder}${demo_circle_colors[i]}-circle.png`);
-}
-
-//decide what the parameters for the demo trial should be. Sometimes you hardcode this, sometimes you randomly choose from the options you defined above.
-var thisDemoCircle = randomChoice(demo_circle_colors,1)[0];
-var thisDemoDispDuration = randomChoice(demo_display_durations,1)[0];
+// No instruction/demo stimuli are preloaded for this experiment.
 
 /* -------  Push Instr + Demo Trials to timeline_instr (*push_instr) -------------- */
 var instrContent = loadInstrContent();
-var demoTrialIndex = 3;
-var [instrContent_beforedemo,instrContent_afterdemo] = cutArray(instrContent,3);
 
 var instructions1 = {
     type: jsPsychInstructions,
-    pages: instrContent_beforedemo,
+    pages: instrContent,
     show_clickable_nav: true,
     allow_keys: false,
     allow_backward: false,
@@ -196,24 +184,10 @@ var instructions1 = {
     }, // end delay_time
 };
 
-var instructions2 = {
-    type: jsPsychInstructions,
-    pages: instrContent_afterdemo,
-    show_clickable_nav: true,
-    allow_keys: false,
-    allow_backward: false,
-    delay_time: function(){
-        const calculated_delays = [];
-        for (let i = demoTrialIndex; i < instrContent.length; i++) {
-            calculated_delays.push(calculate_delay_time(count_words(instrContent[i]),60));
-        }
-        return calculated_delays
-    }, // end delay_time
-};
 
 timelineinstr.push(instructions1);
-runSingleTrial(thisDemoCircle,thisDemoDispDuration,timelineinstr,"prac") // pushesyour demo trial
-timelineinstr.push(instructions2);
+// runSingleTrial(thisDemoCircle,thisDemoDispDuration,timelineinstr,"prac") // pushesyour demo trial
+
 
 /*
 ===============================================================
@@ -227,25 +201,29 @@ EXPERIMENT SECTION (*sec_expt)
 // it's called from startExperiment() once config is actually available.
 function buildExptDesign(config) {
     // Expt variables that are not able to change (without PR)
-    var possible_display_durations = [200, 500];
+    // NONE FOR NOW
 
     // Expt variables that ARE able to change via config, default set in params.js.
     //      Config numbers arrive as floats, so make sure to read in correctly asInteger/asNumber
     //      see the helpers in src/js/utils/standard-functions.js.
-    var possible_circle_colors = asList(config.base_circle_colors, CONFIG_DEFAULTS.base_circle_colors);
+    var possible_dark_locations = asList(config.dark_locations, CONFIG_DEFAULTS.dark_locations);
+    var possible_display_durations = asList(config.display_durations, CONFIG_DEFAULTS.display_durations);
     var n_reps = asInteger(config.number_of_repetitions, CONFIG_DEFAULTS.number_of_repetitions);
     
     // Build the main experiment trials, including both types of expt variables
     var factors = {
-        circle_color: possible_circle_colors,
+        dark_location: possible_dark_locations,
         display_duration: possible_display_durations, 
     };
     var factorial_design = jsPsych.randomization.factorial(factors, n_reps);
 
     /* -------  Set Preload Images for Expt (*preload_expt) -------------- */
-    for (var i = 0; i < possible_circle_colors.length; i++) {
-        forPreload.push(`${stimFolder}${possible_circle_colors[i]}-circle.png`);
-    }
+    forPreload.push(`${stimFolder}threeOffBase2.png`);
+    forPreload.push(`${stimFolder}fiveOffBase2.png`);
+    forPreload.push(`${stimFolder}threeOffBase2_mask.png`);
+    forPreload.push(`${stimFolder}fiveOffBase2_mask.png`);
+    forPreload.push(`${stimFolder}dayRoad_short.png`);
+    forPreload.push(`${stimFolder}dayRoad_long.png`);
 
     return factorial_design;
 }
@@ -299,7 +277,6 @@ var closing = {
     }, // on finish complete
 };
 
-timelineclose.push(feedback_summary);
 timelineclose.push(debrief_qs);
 timelineclose.push({ type: jsPsychFullscreen, fullscreen_mode: false });
 timelineclose.push(closing);
@@ -331,9 +308,8 @@ async function startExperiment() {
     console.log('Running ' + full_design.length + ' main trials.');
     console.log(full_design);
 
-    for (var t = 0; t < full_design.length; t++) {
-        runSingleTrial(full_design[t].circle_color, full_design[t].display_duration, timelineexpt, 'expt');
-    }
+    var selected_trial = randomChoice(full_design, 1)[0];
+    runSingleTrial(selected_trial.dark_location, selected_trial.display_duration, timelineexpt, 'expt');
 
     // Assemble the timeline (toggle sections with the run* flags in params.js).
     if (runPreload) {
