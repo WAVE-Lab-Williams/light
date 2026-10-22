@@ -63,8 +63,8 @@ function runSingleTrial(
                 align-items: center;
             ">
                 <img src="${thisStim}" style="
-                    width: 85vw;
-                    max-height: 85vh;
+                    width: ${imgWidth}px;
+                    height: ${imgHeight}px;
                     object-fit: contain;
                 " />
             </div>

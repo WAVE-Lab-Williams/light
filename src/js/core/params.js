@@ -26,10 +26,12 @@ a one of these variables (via the setup_experiment.ipynb notebook / API)
 instead of having to edit the file and do PRs.
 
 */
+
+
 var CONFIG_DEFAULTS = {
     number_of_repetitions: 1,
-    dark_locations: [`3`, `5`],
-    display_durations: [400, 600, 800, 1000]
+    dark_locations: ['3', '5'],
+    display_durations: [1000, 1500, 2000, 2500]
 };
 
 // Defining Core Variables that remain constant
@@ -65,10 +67,14 @@ var h =
     document.documentElement.clientHeight ||
     document.body.clientHeight;
 
-// setting display image width
-var origWidth = 300;
-var origHeight = 300;
-var imgWidth = 150; // your desired display img width
+
+
+// Original render dimensions
+var origWidth = 1920;
+var origHeight = 1080;
+
+// Display dimensions
+var imgWidth = 600;
 var imgHeight = (imgWidth / origWidth) * origHeight;
 
 
