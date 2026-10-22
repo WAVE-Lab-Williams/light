@@ -37,13 +37,13 @@ var CONFIG_DEFAULTS = {
 // Defining Core Variables that remain constant
 var PRESTIM_DISP_TIME = 800; // blank screen time
 var FIXATION_DISP_TIME = 500; // fixation cross display time
-var MASK_DISP_TIME = 100;
+var MASK_DISP_TIME = 300;
 
 // Variables for Participant Information
 var estTotalRunTime = 3;
 var estDollars = 0.45;
 var participantType = 'prolific';
-var completionCode = 'C4MF2IV1';
+var completionCode = 'C41ESFV9';
 var prolific_url = 'https://app.prolific.co/submissions/complete?cc='+completionCode;
 
 // WAVE Backend Configuration

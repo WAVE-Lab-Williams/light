@@ -184,7 +184,7 @@ function processTrialData(data) {
             response_time: data.rt,
             accuracy: data.thisAcc,
             correct_response: data.correct_response,
-            stimulus_duration: data.trial_duration,
+            trial_duration: data.trial_duration,
             time_elapsed: data.time_elapsed,
             timestamp: data.timestamp,
             user_agent: data.user_agent,

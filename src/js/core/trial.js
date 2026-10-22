@@ -121,7 +121,7 @@ function runSingleTrial(
         html: `
             <div style="width: 900px; max-width: 90vw; margin: 0 auto; text-align: center;">
                 <p style="font-size: 24px; margin-bottom: 45px;">
-                    <strong>How far away do you think the construction sign is?</strong>
+                    <strong>How far away was the construction sign?</strong>
                 </p>
 
                 <div style="display: grid; grid-template-columns: 300px 1fr 300px; align-items: center; gap: 25px;">
